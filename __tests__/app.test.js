@@ -34,8 +34,9 @@ describe("app.js", () => {
       });
     });
   });
+
   describe("/api/articles", () => {
-    describe("/api/articles/:article_id - returns an article object with the following properties - author, title, article_id, body, topic, created_at, votes", () => {
+    describe("GET /api/articles/:article_id - returns an article object with the following properties - author, title, article_id, body, topic, created_at, votes", () => {
       test("200: returns article object", () => {
         return request(app)
           .get("/api/articles/5")
@@ -74,7 +75,66 @@ describe("app.js", () => {
           });
       });
     });
+    describe("PATCH /api/articles/:article_id - in/decrement article vote by given {inc_votes} property value", () => {
+      test("200: Correctly updates vote property, returns the article", () => {
+        return request(app)
+          .patch("/api/articles/3")
+          .send({ inc_votes: 5 })
+          .then(201)
+          .then((response) => {
+            const { body } = response;
+            expect(body.votes).toBe(5);
+          });
+      });
+      test("200: Correctly updates vote property, returns the article", () => {
+        return request(app)
+          .patch("/api/articles/3")
+          .send({ inc_votes: 5 })
+          .expect(200)
+          .then((response) => {
+            const { body } = response;
+            expect(body.votes).toBe(5);
+          });
+      });
+      test("304 - Not modified: Doesn't allow votes to go into negatives", () => {
+        return request(app)
+          .patch("/api/articles/3")
+          .send({ inc_votes: -10 })
+          .expect(400)
+          .then((response) => {
+            const { body } = response;
+            expect(body.msg).toBe(
+              "Not possible to reduce votes below 0 - current vote is 0"
+            );
+          });
+      });
+      test("400 - Bad request: ", () => {
+        return request(app)
+          .patch("/api/articles/3")
+          .send({ vote_increase: 5 })
+          .expect(400)
+          .then((response) => {
+            const { body } = response;
+            expect(body.msg).toBe(
+              "Bad request received please use format '{inc_vote : <integer>}'"
+            );
+          });
+      });
+      test("400 - Bad request: ", () => {
+        return request(app)
+          .patch("/api/articles/3")
+          .send({ inc_vote: "five" })
+          .expect(400)
+          .then((response) => {
+            const { body } = response;
+            expect(body.msg).toBe(
+              "Bad request received please use format '{inc_vote : <integer>}'"
+            );
+          });
+      });
+    });
   });
+
   describe("/api/users", () => {
     describe("GET /api/users - returns array of user objects with properties: ", () => {
       test("200: returns an array of users", () => {
