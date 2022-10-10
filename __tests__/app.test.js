@@ -76,7 +76,7 @@ describe("app.js", () => {
     });
   });
   describe("/api/users", () => {
-    describe("GET /api/users - returns array of user objects with propeties: ", () => {
+    describe("GET /api/users - returns array of user objects with properties: ", () => {
       test("200: returns an array of users", () => {
         return request(app)
           .get("/api/users")
