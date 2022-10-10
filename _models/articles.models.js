@@ -9,7 +9,7 @@ exports.selectArticleById = (articleId) => {
     });
   } else {
     return db
-      .query("SELECT * FROM articles WHERE article_id = $1", [articleId])
+      .query("SELECT * FROM articles WHERE article_id = $1;", [articleId])
       .then((article) => {
         if (!article.rows[0]) {
           return Promise.reject({
@@ -25,4 +25,9 @@ exports.selectArticleById = (articleId) => {
         return err;
       });
   }
+};
+exports.selectUsers = () => {
+  return db.query("SELECT * FROM users;").then((users) => {
+    return users.rows;
+  });
 };

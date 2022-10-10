@@ -3,10 +3,12 @@ const app = express();
 app.use(express.json());
 
 const { getTopics } = require("./_controllers/topics.controllers");
-const { getArticleById } = require("./_controllers/app.controllers");
+const { getArticleById } = require("./_controllers/articles.controllers");
+const { getUsers } = require("./_controllers/users.controllers");
 
 app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticleById);
+app.get("/api/users", getUsers);
 
 app.use((err, req, res, next) => {
   if (err.status) {
