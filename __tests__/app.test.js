@@ -34,4 +34,45 @@ describe("app.js", () => {
       });
     });
   });
+  describe("/api/articles", () => {
+    describe("/api/articles/:article_id - returns an article object with the following properties - author, title, article_id, body, topic, created_at, votes", () => {
+      test("200: returns article object", () => {
+        return request(app)
+          .get("/api/articles/5")
+          .expect(200)
+          .then((response) => {
+            const { body } = response;
+            expect(body.title).toBe(
+              "UNCOVERED: catspiracy to bring down democracy"
+            );
+            expect(body.topic).toBe("cats");
+            expect(body.author).toBe("rogersop");
+            expect(body.body).toBe(
+              "Bastet walks amongst us, and the cats are taking arms!"
+            );
+            const date = new Date(1596464040000);
+            expect(body.created_at).toBe("2020-08-03T06:14:00.000Z");
+            expect(body.votes).toBe(0);
+          });
+      });
+      test("404 - Not Found: should return error for unmatched article id", () => {
+        return request(app)
+          .get("/api/articles/10000")
+          .expect(404)
+          .then((response) => {
+            const { body } = response;
+            expect(body.msg).toBe("Article not found.");
+          });
+      });
+      test("400 - Bad Request: should return error for incorrect article id", () => {
+        return request(app)
+          .get("/api/articles/articletest")
+          .expect(400)
+          .then((response) => {
+            const { body } = response;
+            expect(body.msg).toBe("Bad request - Invalid article ID");
+          });
+      });
+    });
+  });
 });
