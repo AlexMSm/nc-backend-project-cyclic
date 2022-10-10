@@ -75,5 +75,26 @@ describe("app.js", () => {
       });
     });
   });
-  describe("/api/users", () => {});
+  describe("/api/users", () => {
+    describe("GET /api/users - returns array of user objects with propeties: ", () => {
+      test("200: returns an array of users", () => {
+        return request(app)
+          .get("/api/users")
+          .expect(200)
+          .then((response) => {
+            const { body } = response;
+            expect(body.length).toBe(4);
+            body.forEach((user) => {
+              expect(user).toEqual(
+                expect.objectContaining({
+                  username: expect.any(String),
+                  name: expect.any(String),
+                  avatar_url: expect.any(String),
+                })
+              );
+            });
+          });
+      });
+    });
+  });
 });
