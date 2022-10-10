@@ -3,21 +3,18 @@ const app = express();
 app.use(express.json());
 
 const { getTopics } = require("./_controllers/topics.controllers");
+const { getArticleById } = require("./_controllers/app.controllers");
 
 app.get("/api/topics", getTopics);
+app.get("/api/articles/:article_id", getArticleById);
 
 app.use((err, req, res, next) => {
   if (err.status) {
     res.status(err.status).send({ msg: err.msg });
   } else next(err);
 });
+
 app.use((err, req, res, next) => {
-  if (err.code === "22P02") {
-    res.status(400).send({ msg: "Invalid Input" });
-  } else next(err);
-});
-app.use((err, req, res, next) => {
-  console.log(err, "in the err500");
   res.status(500).send({ msg: "Internal Server Error" });
 });
 
