@@ -55,3 +55,8 @@ The [Husky documentation](https://typicode.github.io/husky/#/) explains how to c
 ## Info for cloners
 
 You will need to add two files '.env.test' and '.env.development' containing the code 'PGDATABASE=nc_news_test' and 'PGDATABASE=nc_news' respectively, to successfully connect to the databases.
+
+You will also likely need to install:
+
+express.js - 'npm i express'
+supertest - 'npm i supertest'
