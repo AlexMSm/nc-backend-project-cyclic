@@ -29,11 +29,14 @@ exports.selectArticleById = (articleId) => {
 };
 
 exports.updateVoteById = (article_id, body) => {
-  console.log(body);
-  if (Object.keys(body).includes("inc_votes")) {
+  if (
+    Object.keys(body).includes("inc_votes") &&
+    Number.isInteger(body.inc_votes)
+  ) {
     return this.selectArticleById(article_id).then((article) => {
-      if (article.votes + body.inc_votes < 0) {
-        console.log("Large vote");
+      if (article.error) {
+        return article;
+      } else if (article.votes + body.inc_votes < 0) {
         return Promise.reject({
           error: true,
           status: 400,
@@ -51,7 +54,6 @@ exports.updateVoteById = (article_id, body) => {
       }
     });
   } else {
-    console.log("Bad");
     return Promise.reject({
       error: true,
       status: 400,

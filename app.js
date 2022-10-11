@@ -17,10 +17,11 @@ app.get("/api/users", getUsers);
 app.patch("/api/articles/:article_id", patchVoteById);
 
 app.use((err, req, res, next) => {
-  console.log(err);
   if (err.status) {
     res.status(err.status).send({ msg: err.msg });
-  } else next(err);
+  } else {
+    next(err);
+  }
 });
 
 app.use((err, req, res, next) => {

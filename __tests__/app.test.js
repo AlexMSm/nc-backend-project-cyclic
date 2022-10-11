@@ -78,28 +78,28 @@ describe("app.js", () => {
     describe("PATCH /api/articles/:article_id - in/decrement article vote by given {inc_votes} property value", () => {
       test("200: Correctly updates vote property, returns the article", () => {
         return request(app)
-          .patch("/api/articles/3")
+          .patch("/api/articles/1")
           .send({ inc_votes: 5 })
           .then(201)
           .then((response) => {
             const { body } = response;
-            expect(body.votes).toBe(5);
+            expect(body.votes).toBe(105);
           });
       });
       test("200: Correctly updates vote property, returns the article", () => {
         return request(app)
-          .patch("/api/articles/3")
-          .send({ inc_votes: 5 })
+          .patch("/api/articles/1")
+          .send({ inc_votes: -50 })
           .expect(200)
           .then((response) => {
             const { body } = response;
-            expect(body.votes).toBe(5);
+            expect(body.votes).toBe(50);
           });
       });
       test("304 - Not modified: Doesn't allow votes to go into negatives", () => {
         return request(app)
           .patch("/api/articles/3")
-          .send({ inc_votes: -10 })
+          .send({ inc_votes: -110 })
           .expect(400)
           .then((response) => {
             const { body } = response;
@@ -110,7 +110,7 @@ describe("app.js", () => {
       });
       test("400 - Bad request: ", () => {
         return request(app)
-          .patch("/api/articles/3")
+          .patch("/api/articles/1")
           .send({ vote_increase: 5 })
           .expect(400)
           .then((response) => {
@@ -122,14 +122,34 @@ describe("app.js", () => {
       });
       test("400 - Bad request: ", () => {
         return request(app)
-          .patch("/api/articles/3")
-          .send({ inc_vote: "five" })
+          .patch("/api/articles/1")
+          .send({ inc_votes: "five" })
           .expect(400)
           .then((response) => {
             const { body } = response;
             expect(body.msg).toBe(
               "Bad request received please use format '{inc_vote : <integer>}'"
             );
+          });
+      });
+      test("404 - Not Found: should return error for unmatched article id", () => {
+        return request(app)
+          .patch("/api/articles/10000")
+          .send({ inc_votes: 5 })
+          .expect(404)
+          .then((response) => {
+            const { body } = response;
+            expect(body.msg).toBe("Article not found.");
+          });
+      });
+      test("400 - Bad Request: should return error for incorrect article id", () => {
+        return request(app)
+          .patch("/api/articles/articletest")
+          .send({ inc_votes: 5 })
+          .expect(400)
+          .then((response) => {
+            const { body } = response;
+            expect(body.msg).toBe("Bad request - Invalid article ID");
           });
       });
     });
