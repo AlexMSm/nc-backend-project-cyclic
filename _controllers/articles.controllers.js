@@ -33,3 +33,8 @@ exports.patchVoteById = (req, res, next) => {
       next(err);
     });
 };
+
+exports.getArticleCommentCount = (req, res, next) => {
+  const articleId = req.params.article_id;
+  returnArticleCommentCount(articleId).then(() => {});
+};

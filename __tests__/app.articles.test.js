@@ -130,4 +130,26 @@ describe("/api/articles", () => {
         });
     });
   });
+  describe("GET /api/articles/:article_id - should now include comment_count", () => {
+    test("200: returns article object", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then((response) => {
+          const { body } = response;
+          expect(body.title).toBe("Living in the shadow of a great man");
+          expect(body.comment_count).toBe(11);
+        });
+    });
+    test("200: returns article object with 0 comments", () => {
+      return request(app)
+        .get("/api/articles/2")
+        .expect(200)
+        .then((response) => {
+          const { body } = response;
+          expect(body.title).toBe("Sony Vaio; or, The Laptop");
+          expect(body.comment_count).toBe(0);
+        });
+    });
+  });
 });
