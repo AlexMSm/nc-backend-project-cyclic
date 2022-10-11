@@ -86,7 +86,7 @@ describe("app.js", () => {
             expect(body.votes).toBe(105);
           });
       });
-      test("200: Correctly updates vote property, returns the article", () => {
+      test("200: Correctly updates vote property when negative vote given, returns the article", () => {
         return request(app)
           .patch("/api/articles/1")
           .send({ inc_votes: -50 })
