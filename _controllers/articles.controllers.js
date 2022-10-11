@@ -2,6 +2,7 @@ const {
   selectArticleById,
   updateVoteById,
   selectArticlesByTopic,
+  selectCommentsByArticleId,
 } = require("../_models/articles.models");
 
 exports.getArticleById = (req, res, next) => {
@@ -44,6 +45,21 @@ exports.getArticlesByTopic = (req, res, next) => {
       } else {
         //console.log(articles);
         res.status(200).send(articles);
+      }
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.getCommentsByArticleId = (req, res, next) => {
+  const articleId = req.params.article_id;
+  selectCommentsByArticleId(articleId)
+    .then((comments) => {
+      if (comments.error) {
+        next(comments);
+      } else {
+        res.status(200).send(comments);
       }
     })
     .catch((err) => {
