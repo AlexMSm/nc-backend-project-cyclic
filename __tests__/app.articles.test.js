@@ -152,4 +152,68 @@ describe("/api/articles", () => {
         });
     });
   });
+  describe("GET /api/articles?topic=<topic> - returns array of article objects with optional topic filter", () => {
+    test("200: returns array of all article objects DATE DSC", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toHaveLength(12);
+          let dateCheck = new Date("2100-01-01").getTime();
+          body.forEach((article) => {
+            let epoch = new Date(article.created_at).getTime();
+            expect(epoch).toBeLessThan(dateCheck);
+            dateCheck = epoch;
+            expect(article).toEqual(
+              expect.objectContaining({
+                title: expect.any(String),
+                topic: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                comment_count: expect.any(Number),
+              })
+            );
+          });
+        });
+    });
+    test("200: returns array of all article objects of specified topic DATE DSC", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toHaveLength(11);
+          let dateCheck = new Date("2100-01-01").getTime();
+          body.forEach((article) => {
+            let epoch = new Date(article.created_at).getTime();
+            expect(epoch).toBeLessThan(dateCheck);
+            dateCheck = epoch;
+            expect(article.topic).toBe("mitch");
+          });
+        });
+    });
+    test("404 - Not found: returns error when queried topic returns no results", () => {
+      return request(app)
+        .get("/api/articles?topic=paper")
+        .expect(404)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("No articles found on this topic.");
+        });
+    });
+    test("400 - Bad request: returns error when queried topic does not exists", () => {
+      return request(app)
+        .get("/api/articles?topic=barnacles")
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe(
+            "barnacles is not a valid topic - available topics: mitch,cats,paper"
+          );
+        });
+    });
+  });
 });
