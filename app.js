@@ -6,6 +6,7 @@ const { getTopics } = require("./_controllers/topics.controllers");
 const {
   getArticleById,
   patchVoteById,
+  getArticleCommentCount,
 } = require("./_controllers/articles.controllers");
 
 const { getUsers } = require("./_controllers/users.controllers");
@@ -13,6 +14,7 @@ const { getUsers } = require("./_controllers/users.controllers");
 app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/users", getUsers);
+app.get("/api/articles/:article_id", getArticleCommentCount);
 
 app.patch("/api/articles/:article_id", patchVoteById);
 
@@ -26,10 +28,6 @@ app.use((err, req, res, next) => {
 
 app.use((err, req, res, next) => {
   res.status(500).send({ msg: "Internal Server Error" });
-});
-
-app.listen(9090, () => {
-  console.log("Listening on port 9090");
 });
 
 module.exports = app;
