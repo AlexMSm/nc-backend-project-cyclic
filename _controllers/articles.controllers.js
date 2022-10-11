@@ -1,6 +1,7 @@
 const {
   selectArticleById,
   updateVoteById,
+  selectArticlesByTopic,
 } = require("../_models/articles.models");
 
 exports.getArticleById = (req, res, next) => {
@@ -34,7 +35,18 @@ exports.patchVoteById = (req, res, next) => {
     });
 };
 
-exports.getArticleCommentCount = (req, res, next) => {
-  const articleId = req.params.article_id;
-  returnArticleCommentCount(articleId).then(() => {});
+exports.getArticlesByTopic = (req, res, next) => {
+  const topic = req.query.topic;
+  selectArticlesByTopic(topic)
+    .then((articles) => {
+      if (articles.error) {
+        next(articles);
+      } else {
+        //console.log(articles);
+        res.status(200).send(articles);
+      }
+    })
+    .catch((err) => {
+      next(err);
+    });
 };

@@ -1,5 +1,6 @@
 const { ident } = require("pg-format");
 const db = require("../db/connection");
+const { selectTopics } = require("./topics.models");
 
 exports.selectArticleById = (articleId) => {
   if (!(articleId > 0)) {
@@ -66,4 +67,39 @@ exports.updateVoteById = (article_id, body) => {
       msg: "Bad request received please use format '{inc_vote : <integer>}'",
     });
   }
+};
+
+exports.selectArticlesByTopic = async (topic) => {
+  const topics = await selectTopics();
+  const okTopics = topics.map((topic) => {
+    return topic.slug;
+  });
+  if (topic && !okTopics.includes(topic)) {
+    return Promise.reject({
+      error: true,
+      status: 400,
+      msg: `${topic} is not a valid topic - available topics: ${okTopics}`,
+    });
+  }
+  let query = `SELECT articles.*, COUNT(comments.article_id) AS comment_count FROM articles
+  LEFT JOIN comments ON comments.article_id = articles.article_id`;
+  if (topic) {
+    query += ` WHERE articles.topic = '${topic}'`;
+  }
+  query += " GROUP BY articles.article_id ORDER BY created_at DESC;";
+
+  return db.query(query).then((response) => {
+    if (response.rows.length === 0) {
+      return Promise.reject({
+        error: true,
+        status: 404,
+        msg: `No articles found on this topic.`,
+      });
+    } else {
+      response.rows.forEach((article) => {
+        article.comment_count = Number(article.comment_count);
+      });
+      return response.rows;
+    }
+  });
 };
