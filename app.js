@@ -8,6 +8,7 @@ const {
   patchVoteById,
   getArticleCommentCount,
   getArticlesByTopic,
+  getCommentsByArticleId,
 } = require("./_controllers/articles.controllers");
 
 const { getUsers } = require("./_controllers/users.controllers");
@@ -17,12 +18,22 @@ app.get("/api/articles", getArticlesByTopic);
 app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/users", getUsers);
+app.get("/api/articles/:article_id", getArticleCommentCount);
+app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 app.patch("/api/articles/:article_id", patchVoteById);
 
+app.all("/*", (req, res) => {
+  res.status(404).send({ message: "Bad path" });
+});
+
 app.use((err, req, res, next) => {
   if (err.status) {
-    res.status(err.status).send({ msg: err.msg });
+    if (err.code === "22P02") {
+      res.status(400).send({ msg: "Unknown Invalid Input" });
+    } else {
+      res.status(err.status).send({ msg: err.msg });
+    }
   } else {
     next(err);
   }
