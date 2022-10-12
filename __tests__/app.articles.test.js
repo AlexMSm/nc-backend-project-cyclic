@@ -160,6 +160,10 @@ describe("/api/articles", () => {
         .then((response) => {
           const { body } = response;
           expect(body).toHaveLength(12);
+          expect(body).toBeSortedBy(
+            { key: "created_at" },
+            { descending: true }
+          );
           let dateCheck = new Date("2100-01-01").getTime();
           body.forEach((article) => {
             let epoch = new Date(article.created_at).getTime();
