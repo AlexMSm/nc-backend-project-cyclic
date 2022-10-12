@@ -3,7 +3,7 @@ const db = require("../db/connection");
 const { selectTopics } = require("./topics.models");
 
 exports.selectArticleById = (articleId) => {
-  if (!(articleId > 0)) {
+  if (!(articleId > 0) || !Number.isInteger(Number(articleId))) {
     return Promise.reject({
       error: true,
       status: 400,
@@ -64,7 +64,7 @@ exports.updateVoteById = (article_id, body) => {
     return Promise.reject({
       error: true,
       status: 400,
-      msg: "Bad request received please use format '{inc_vote : <integer>}'",
+      msg: "Bad request - please use format '{inc_vote : <integer>}'",
     });
   }
 };
@@ -102,29 +102,4 @@ exports.selectArticlesByTopic = async (topic) => {
       return response.rows;
     }
   });
-};
-
-exports.selectCommentsByArticleId = async (article_id) => {
-  const article = await this.selectArticleById(article_id);
-  if (article.error) {
-    return article;
-  } else {
-    return db
-      .query(
-        `SELECT comments.* FROM comments
-    LEFT JOIN articles ON articles.article_id = comments.article_id WHERE comments.article_id = $1 ORDER BY created_at DESC;`,
-        [article_id]
-      )
-      .then((response) => {
-        if (response.rows.length === 0) {
-          return Promise.reject({
-            error: true,
-            status: 404,
-            msg: `No comments found.`,
-          });
-        } else {
-          return response.rows;
-        }
-      });
-  }
 };

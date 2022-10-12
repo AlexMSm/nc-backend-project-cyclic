@@ -8,8 +8,12 @@ const {
   patchVoteById,
   getArticleCommentCount,
   getArticlesByTopic,
-  getCommentsByArticleId,
 } = require("./_controllers/articles.controllers");
+
+const {
+  getCommentsByArticleId,
+  postCommentToArticle,
+} = require("./_controllers/comments.controllers");
 
 const { getUsers } = require("./_controllers/users.controllers");
 
@@ -21,6 +25,7 @@ app.get("/api/users", getUsers);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 app.patch("/api/articles/:article_id", patchVoteById);
+app.post("/api/articles/:article_id/comments", postCommentToArticle);
 
 app.all("/*", (req, res) => {
   res.status(404).send({ message: "Bad path" });
