@@ -64,7 +64,7 @@ exports.updateVoteById = (article_id, body) => {
     return Promise.reject({
       error: true,
       status: 400,
-      msg: "Bad request received please use format '{inc_vote : <integer>}'",
+      msg: "Bad request - please use format '{inc_vote : <integer>}'",
     });
   }
 };
