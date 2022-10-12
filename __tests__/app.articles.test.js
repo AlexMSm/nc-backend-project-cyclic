@@ -3,6 +3,7 @@ const request = require("supertest");
 const app = require("../app");
 const data = require("../db/data/test-data");
 const seed = require("../db/seeds/seed");
+require("jest-sorted");
 
 beforeEach(() => {
   return seed(data);
@@ -160,15 +161,8 @@ describe("/api/articles", () => {
         .then((response) => {
           const { body } = response;
           expect(body).toHaveLength(12);
-          /* expect(body).toBeSortedBy(
-            { key: "created_at" },
-            { descending: true }
-          ); */
-          let dateCheck = new Date("2100-01-01").getTime();
+          expect(body).toBeSortedBy("created_at", { descending: true });
           body.forEach((article) => {
-            let epoch = new Date(article.created_at).getTime();
-            expect(epoch).toBeLessThan(dateCheck);
-            dateCheck = epoch;
             expect(article).toEqual(
               expect.objectContaining({
                 title: expect.any(String),
@@ -190,11 +184,8 @@ describe("/api/articles", () => {
         .then((response) => {
           const { body } = response;
           expect(body).toHaveLength(11);
-          let dateCheck = new Date("2100-01-01").getTime();
+          expect(body).toBeSortedBy("created_at", { descending: true });
           body.forEach((article) => {
-            let epoch = new Date(article.created_at).getTime();
-            expect(epoch).toBeLessThan(dateCheck);
-            dateCheck = epoch;
             expect(article.topic).toBe("mitch");
           });
         });
