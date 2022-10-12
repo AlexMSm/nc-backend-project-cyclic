@@ -94,7 +94,7 @@ describe("/api/articles", () => {
         .then((response) => {
           const { body } = response;
           expect(body.msg).toBe(
-            "Bad request received please use format '{inc_vote : <integer>}'"
+            "Bad request - please use format '{inc_vote : <integer>}'"
           );
         });
     });
@@ -106,7 +106,7 @@ describe("/api/articles", () => {
         .then((response) => {
           const { body } = response;
           expect(body.msg).toBe(
-            "Bad request received please use format '{inc_vote : <integer>}'"
+            "Bad request - please use format '{inc_vote : <integer>}'"
           );
         });
     });
@@ -208,59 +208,6 @@ describe("/api/articles", () => {
           expect(body.msg).toBe(
             "barnacles is not a valid topic - available topics: mitch,cats,paper"
           );
-        });
-    });
-  });
-  describe("GET /api/articles/:article_id/comments - returns array of comments for an article - date DESC", () => {
-    test("200: returns array of comment objects", () => {
-      return request(app)
-        .get("/api/articles/1/comments")
-        .expect(200)
-        .then((response) => {
-          const { body } = response;
-          expect(body).toHaveLength(11);
-          let dateCheck = new Date("2100-01-01").getTime();
-          body.forEach((comment) => {
-            let epoch = new Date(comment.created_at).getTime();
-            expect(epoch).toBeLessThan(dateCheck);
-            dateCheck = epoch;
-            expect(comment).toEqual(
-              expect.objectContaining({
-                comment_id: expect.any(Number),
-                votes: expect.any(Number),
-                created_at: expect.any(String),
-                author: expect.any(String),
-                body: expect.any(String),
-              })
-            );
-          });
-        });
-    });
-    test("404 - Not Found: should return error if no comments found", () => {
-      return request(app)
-        .get("/api/articles/2/comments")
-        .expect(404)
-        .then((response) => {
-          const { body } = response;
-          expect(body.msg).toBe("No comments found.");
-        });
-    });
-    test("404 - Not Found: should return error for unmatched article id", () => {
-      return request(app)
-        .get("/api/articles/1000/comments")
-        .expect(404)
-        .then((response) => {
-          const { body } = response;
-          expect(body.msg).toBe("Article not found.");
-        });
-    });
-    test("400 - Bad Request: should return error for incorrect article id", () => {
-      return request(app)
-        .get("/api/articles/articletest/comments")
-        .expect(400)
-        .then((response) => {
-          const { body } = response;
-          expect(body.msg).toBe("Bad request - Invalid article ID");
         });
     });
   });

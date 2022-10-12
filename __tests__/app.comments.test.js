@@ -108,7 +108,6 @@ describe("app.js", () => {
         })
         .then((response) => {
           const { body } = response;
-          console.log(body);
           expect(body).toHaveLength(1);
         });
     });
