@@ -56,3 +56,29 @@ exports.addCommentToArticle = async (article_id, comment) => {
     }
   }
 };
+
+exports.removeCommentById = async (comment_id) => {
+  if (!(comment_id > 0) || !Number.isInteger(Number(comment_id))) {
+    return Promise.reject({
+      error: true,
+      status: 400,
+      msg: "Bad request - Invalid comment ID",
+    });
+  } else {
+    return db
+      .query(`DELETE FROM comments WHERE comment_id = $1 RETURNING *;`, [
+        comment_id,
+      ])
+      .then((response) => {
+        if (response.rows.length === 0) {
+          return Promise.reject({
+            error: true,
+            status: 404,
+            msg: `Comment not found.`,
+          });
+        } else {
+          return response.rows;
+        }
+      });
+  }
+};
