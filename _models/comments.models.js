@@ -28,17 +28,6 @@ exports.selectCommentsByArticleId = async (article_id) => {
   }
 };
 
-/* formatComment = (username) => {
-  console.log(username);
-  return db
-    .query("SELECT username, name FROM users WHERE username = $1;", [username])
-    .then((response) => {
-      return createRef(response.rows, "username", "name");
-    });
-};
-//const userFormat = await formatComment(comment.username);
-//comment["username"] = userFormat[comment.username]; */
-
 exports.addCommentToArticle = async (article_id, comment) => {
   const article = await selectArticleById(article_id);
   if (article.error) {
