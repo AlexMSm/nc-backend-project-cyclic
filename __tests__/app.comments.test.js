@@ -185,7 +185,7 @@ describe("app.js", () => {
         })
         .then((response) => {
           const { body } = response;
-          expect(body.msg).toBe("No comments");
+          expect(body.msg).toBe("No comments found.");
         });
     });
     test("404 - Not Found: should return error for unmatched comment id", () => {
