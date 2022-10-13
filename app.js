@@ -18,8 +18,11 @@ const {
 
 const { getUsers } = require("./_controllers/users.controllers");
 
+app.get("/api", (req, res) => {
+  const endpoint = require("./endpoints.json");
+  res.status(200).send({ endpoint });
+});
 app.get("/api/articles", getArticlesByTopic);
-
 app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/users", getUsers);
