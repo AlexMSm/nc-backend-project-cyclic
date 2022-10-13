@@ -23,5 +23,64 @@
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves an article object of given article_id",
+    "exampleResponse": {
+      "title": "Living in the shadow of a great man",
+      "topic": "mitch",
+      "author": "butter_bridge",
+      "body": "I find this existence challenging",
+      "created_at": 1594329060000,
+      "votes": 100
+    }
+  },
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "exampleResponse": [
+      {
+        "username": "butter_bridge",
+        "name": "jonny",
+        "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+      }
+    ]
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves an array of all comments on a given article_id",
+    "exampleResponse": [
+      {
+        "body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        "votes": 16,
+        "author": "butter_bridge",
+        "article_id": 9,
+        "created_at": 1586179020000
+      }
+    ]
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "edits article vote by specified amount then serves the article object. Requires object of the form {inc_vote : <integer>}",
+    "exampleResponse": {
+      "title": "Living in the shadow of a great man",
+      "topic": "mitch",
+      "author": "butter_bridge",
+      "body": "I find this existence challenging",
+      "created_at": 1594329060000,
+      "votes": 50
+    }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "posts a new comment object to a given article. Requires object of the form {username: <string>, body: <string>}",
+    "exampleResponse": {
+      "title": "Living in the shadow of a great man",
+      "topic": "mitch",
+      "author": "butter_bridge",
+      "body": "I find this existence challenging",
+      "created_at": 1594329060000,
+      "votes": 50
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "deletes a comment object, returns nothing.",
+    "exampleResponse": {}
   }
 }
