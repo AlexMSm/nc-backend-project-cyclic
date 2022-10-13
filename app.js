@@ -13,6 +13,7 @@ const {
 const {
   getCommentsByArticleId,
   postCommentToArticle,
+  deleteCommentById,
 } = require("./_controllers/comments.controllers");
 
 const { getUsers } = require("./_controllers/users.controllers");
@@ -26,6 +27,7 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 app.patch("/api/articles/:article_id", patchVoteById);
 app.post("/api/articles/:article_id/comments", postCommentToArticle);
+app.delete("/api/comments/:comment_id", deleteCommentById);
 
 app.all("/*", (req, res) => {
   res.status(404).send({ message: "Bad path" });

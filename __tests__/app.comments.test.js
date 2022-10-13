@@ -156,4 +156,55 @@ describe("app.js", () => {
         });
     });
   });
+
+  describe("DELETE /api/articles/:article_id/comments - deletes a comment returns 204", () => {
+    test("204 - No content: Deletes comment from article 1, leaving 10 comments", () => {
+      return request(app)
+        .delete("/api/comments/2")
+        .expect(204)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toEqual({});
+          return request(app).get("/api/articles/1/comments");
+        })
+        .then((response) => {
+          const { body } = response;
+          expect(body).toHaveLength(10);
+          body.forEach((comment) => {
+            expect(comment.comment_id).not.toBe(2);
+          });
+        });
+    });
+    test("204 - No content: Deletes comment from article 6, leaving 0 comments", () => {
+      return request(app)
+        .delete("/api/comments/16")
+        .expect(204)
+        .then((response) => {
+          const { body } = response;
+          return request(app).get("/api/articles/6/comments");
+        })
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("No comments");
+        });
+    });
+    test("404 - Not Found: should return error for unmatched comment id", () => {
+      return request(app)
+        .delete("/api/comments/1000")
+        .expect(404)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("Comment not found.");
+        });
+    });
+    test("400 - Bad Request: should return error for invalid comment id", () => {
+      return request(app)
+        .delete("/api/comments/notAComment")
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("Bad request - Invalid comment ID");
+        });
+    });
+  });
 });
