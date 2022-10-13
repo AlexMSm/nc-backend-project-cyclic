@@ -36,8 +36,8 @@ exports.patchVoteById = (req, res, next) => {
 };
 
 exports.getArticlesByTopic = (req, res, next) => {
-  const topic = req.query.topic;
-  selectArticlesByTopic(topic)
+  const { query } = req;
+  selectArticlesByTopic(query)
     .then((articles) => {
       if (articles.error) {
         next(articles);

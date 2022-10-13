@@ -69,24 +69,71 @@ exports.updateVoteById = (article_id, body) => {
   }
 };
 
-exports.selectArticlesByTopic = async (topic) => {
+exports.selectArticlesByTopic = async (req) => {
+  const okQueries = ["sort_by", "order", "topic"];
+  const queries = Object.keys(req);
+  for (let key of queries) {
+    if (!okQueries.includes(key)) {
+      return Promise.reject({
+        error: true,
+        status: 400,
+        msg: `Bad request - ${key} is not a valid query.`,
+      });
+    }
+  }
+  const okSorts = [
+    "article_id",
+    "title",
+    "topic",
+    "author",
+    "created_at",
+    "votes",
+  ];
+  if (req.sort_by && !okSorts.includes(req.sort_by)) {
+    return Promise.reject({
+      error: true,
+      status: 400,
+      msg: `Bad request - invalid sort_by catergory.`,
+    });
+  }
+  const okOrders = ["ASC", "DESC"];
+  if (req.order && !okOrders.includes(req.order.toUpperCase())) {
+    return Promise.reject({
+      error: true,
+      status: 400,
+      msg: `Bad request - invalid order catergory.`,
+    });
+  }
+
   const topics = await selectTopics();
   const okTopics = topics.map((topic) => {
     return topic.slug;
   });
-  if (topic && !okTopics.includes(topic)) {
+  if (req.topic && !okTopics.includes(req.topic)) {
     return Promise.reject({
       error: true,
       status: 400,
-      msg: `${topic} is not a valid topic - available topics: ${okTopics}`,
+      msg: `${req.topic} is not a valid topic - available topics: ${okTopics}`,
     });
   }
+
   let query = `SELECT articles.*, COUNT(comments.article_id) AS comment_count FROM articles
   LEFT JOIN comments ON comments.article_id = articles.article_id`;
-  if (topic) {
-    query += ` WHERE articles.topic = '${topic}'`;
+
+  if (req.topic) {
+    query += ` WHERE articles.topic = '${req.topic}'`;
   }
-  query += " GROUP BY articles.article_id ORDER BY created_at DESC;";
+  query += " GROUP BY articles.article_id";
+  if (req.sort_by) {
+    query += ` ORDER BY articles.${req.sort_by}`;
+  } else {
+    query += " ORDER BY created_at";
+  }
+  if (req.order) {
+    query += ` ${req.order}`;
+  } else {
+    query += " DESC";
+  }
 
   return db.query(query).then((response) => {
     if (response.rows.length === 0) {

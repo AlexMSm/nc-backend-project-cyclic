@@ -211,4 +211,81 @@ describe("/api/articles", () => {
         });
     });
   });
+  describe("GET /api/articles?topic=<topic>&sort_by=<column>&order=<order>", () => {
+    test("200: returns array of all article objects sorted by vote, DESC by default", () => {
+      return request(app)
+        .get("/api/articles?sort_by=votes")
+        .expect(200)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toBeSortedBy("votes", { descending: true });
+        });
+    });
+    test("200: returns array of all article objects sorted by vote, ASC", () => {
+      return request(app)
+        .get("/api/articles?sort_by=votes&order=ASC")
+        .expect(200)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toBeSortedBy("votes");
+        });
+    });
+    test("200: returns array of all article objects sorted by author, ASC", () => {
+      return request(app)
+        .get("/api/articles?sort_by=author&order=ASC")
+        .expect(200)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toBeSortedBy("author");
+        });
+    });
+    test("200: returns array of all article objects sorted by title, DESC by default", () => {
+      return request(app)
+        .get("/api/articles?sort_by=title")
+        .expect(200)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toBeSortedBy("title", { descending: true });
+        });
+    });
+    test("400 - Bad request: returns error for invalid query", () => {
+      return request(app)
+        .get("/api/articles?sort=title")
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("Bad request - sort is not a valid query.");
+        });
+    });
+    test("400 - Bad request: returns error for invalid sort catergory", () => {
+      return request(app)
+        .get("/api/articles?sort_by=author_age")
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("Bad request - invalid sort_by catergory.");
+        });
+    });
+    test("400 - Bad request: prevent sort_by body", () => {
+      return request(app)
+        .get("/api/articles?sort_by=body")
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("Bad request - invalid sort_by catergory.");
+        });
+    });
+    test("400 - Bad request: returns error for invalid order catergory", () => {
+      return request(app)
+        .get("/api/articles?order=smallToBig")
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("Bad request - invalid order catergory.");
+        });
+    });
+  });
 });
+
+/* sort_by, which sorts the articles by any valid column (defaults to date)
+order, which can be set to asc or desc for ascending or descending (defaults to descending) */
