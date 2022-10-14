@@ -19,8 +19,4 @@ const config =
       }
     : {};
 
-<<<<<<< HEAD
 module.exports = new Pool(config);
-=======
-module.exports = new Pool();
->>>>>>> f55cfcb8c58c287ea76eafbefacf5918b7728f69
