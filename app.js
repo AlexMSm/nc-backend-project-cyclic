@@ -2,35 +2,10 @@ const express = require("express");
 const app = express();
 app.use(express.json());
 
-const { getTopics } = require("./_controllers/topics.controllers");
-const {
-  getArticleById,
-  patchVoteById,
-  getArticleCommentCount,
-  getArticlesByTopic,
-} = require("./_controllers/articles.controllers");
+const apiRouter = require('./routes/api-router');
 
-const {
-  getCommentsByArticleId,
-  postCommentToArticle,
-  deleteCommentById,
-} = require("./_controllers/comments.controllers");
+app.use('/api', apiRouter);
 
-const { getUsers } = require("./_controllers/users.controllers");
-
-app.get("/api", (req, res) => {
-  const endpoint = require("./endpoints.json");
-  res.status(200).send({ endpoint });
-});
-app.get("/api/articles", getArticlesByTopic);
-app.get("/api/topics", getTopics);
-app.get("/api/articles/:article_id", getArticleById);
-app.get("/api/users", getUsers);
-app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
-
-app.patch("/api/articles/:article_id", patchVoteById);
-app.post("/api/articles/:article_id/comments", postCommentToArticle);
-app.delete("/api/comments/:comment_id", deleteCommentById);
 
 app.all("/*", (req, res) => {
   res.status(404).send({ message: "Bad path" });

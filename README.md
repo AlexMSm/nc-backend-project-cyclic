@@ -22,3 +22,6 @@ To clone and run locally:
 3. Set up the database: 'npm setup-dbs'
 
 4. Seed the database: 'npm seed'
+
+
+
