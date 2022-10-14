@@ -33,4 +33,37 @@ describe("/api/users", () => {
         });
     });
   });
+  describe("GET /api/users/:username - returns a user object with the following properties - username, name, avatar_url", () => {
+    test("200: returns user object", () => {
+      return request(app)
+        .get("/api/users/icellusedkars")
+        .expect(200)
+        .then((response) => {
+          const { body } = response;
+          expect(body.name).toBe("sam");
+          expect(body.username).toBe("icellusedkars");
+          expect(body.avatar_url).toBe(
+            "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4"
+          );
+        });
+    });
+    test("404 - Not Found: should return error for unmatched username id", () => {
+      return request(app)
+        .get("/api/users/notAUser")
+        .expect(404)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("User not found.");
+        });
+    });
+    /* test("400 - Bad Request: should return error for incorrect article id", () => {
+      return request(app)
+        .get("/api/users/90")
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("Bad request - Invalid username");
+        });
+    }); */
+  });
 });
