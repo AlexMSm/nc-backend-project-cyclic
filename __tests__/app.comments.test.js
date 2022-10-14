@@ -157,7 +157,7 @@ describe("app.js", () => {
     });
   });
 
-  describe("DELETE /api/articles/:article_id/comments - deletes a comment returns 204", () => {
+  describe("DELETE /api/comments/:comment_id - deletes a comment returns 204", () => {
     test("204 - No content: Deletes comment from article 1, leaving 10 comments", () => {
       return request(app)
         .delete("/api/comments/2")
