@@ -5,7 +5,7 @@ const articlesRouter = require('./articles-router');
 const commentsRouter = require('./comments-router');
 
 apiRouter.get("/", (req, res) => {
-  const endpoint = require("./endpoints.json");
+  const endpoint = require("../endpoints.json");
   res.status(200).send({ endpoint });
 });
 
