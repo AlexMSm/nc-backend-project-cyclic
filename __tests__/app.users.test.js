@@ -56,14 +56,14 @@ describe("/api/users", () => {
           expect(body.msg).toBe("User not found.");
         });
     });
-    /* test("400 - Bad Request: should return error for incorrect article id", () => {
+    test("400 - Bad Request: should return error for incorrect article id", () => {
       return request(app)
         .get("/api/users/90")
         .expect(400)
         .then((response) => {
           const { body } = response;
-          expect(body.msg).toBe("Bad request - Invalid username");
+          expect(body.msg).toBe("Bad request - Invalid username - must contain a letter");
         });
-    }); */
+    });
   });
 });

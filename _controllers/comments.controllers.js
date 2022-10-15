@@ -2,6 +2,7 @@ const {
   selectCommentsByArticleId,
   addCommentToArticle,
   removeCommentById,
+  updateCommentVote
 } = require("../_models/comments.models");
 
 exports.getCommentsByArticleId = (req, res, next) => {
@@ -18,7 +19,6 @@ exports.getCommentsByArticleId = (req, res, next) => {
       next(err);
     });
 };
-
 exports.postCommentToArticle = (req, res, next) => {
   const articleId = req.params.article_id;
   const { body } = req;
@@ -34,7 +34,6 @@ exports.postCommentToArticle = (req, res, next) => {
       next(err);
     });
 };
-
 exports.deleteCommentById = (req, res, next) => {
   const commentId = req.params.comment_id;
   removeCommentById(commentId)
@@ -49,3 +48,16 @@ exports.deleteCommentById = (req, res, next) => {
       next(err);
     });
 };
+exports.patchCommentVote = (req, res, next) => {
+  const commentId = req.params.comment_id;
+  const {body} = req;
+  updateCommentVote(commentId, body).then((response)=>{
+    if (response.error) {
+      next(response);
+    } else {
+      res.status(201).send(response);
+    }
+  }).catch((err) => {
+    next(err);
+  });
+}

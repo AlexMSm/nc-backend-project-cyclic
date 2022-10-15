@@ -74,18 +74,6 @@ describe("/api/articles", () => {
           expect(body.votes).toBe(50);
         });
     });
-    test("304 - Not modified: Doesn't allow votes to go into negatives", () => {
-      return request(app)
-        .patch("/api/articles/3")
-        .send({ inc_votes: -110 })
-        .expect(400)
-        .then((response) => {
-          const { body } = response;
-          expect(body.msg).toBe(
-            "Not possible to reduce votes below 0 - current vote is 0"
-          );
-        });
-    });
     test("400 - Bad request: ", () => {
       return request(app)
         .patch("/api/articles/1")
@@ -282,6 +270,239 @@ describe("/api/articles", () => {
         .then((response) => {
           const { body } = response;
           expect(body.msg).toBe("Bad request - invalid order catergory.");
+        });
+    });
+  });
+  describe("GET /api/articles/:article_id/comments - returns array of comments for an article - date DESC", () => {
+    test("200: returns array of comment objects", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toHaveLength(11);
+          expect(body).toBeSortedBy("created_at", { descending: true });
+          body.forEach((comment) => {
+            expect(comment).toEqual(
+              expect.objectContaining({
+                comment_id: expect.any(Number),
+                votes: expect.any(Number),
+                created_at: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+              })
+            );
+          });
+        });
+    });
+    test("404 - Not Found: should return error if no comments found", () => {
+      return request(app)
+        .get("/api/articles/2/comments")
+        .expect(404)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("No comments found.");
+        });
+    });
+    test("404 - Not Found: should return error for unmatched article id", () => {
+      return request(app)
+        .get("/api/articles/1000/comments")
+        .expect(404)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("Article not found.");
+        });
+    });
+    test("400 - Bad Request: should return error for incorrect article id", () => {
+      return request(app)
+        .get("/api/articles/articletest/comments")
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("Bad request - Invalid article ID");
+        });
+    });
+  });
+  describe("POST /api/articles/:article_id/comments - adds a comment with username and body to a given article", () => {
+    test("201 - Comment Posted: Posts new comment to the table for article (1) already with comments (11)", () => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send({ username: "icellusedkars", body: "This is a test comment." })
+        .expect(201)
+        .then((response) => {
+          const { body } = response;
+          expect(body.author).toBe("icellusedkars");
+          expect(body.body).toBe("This is a test comment.");
+          expect(body.votes).toBe(0);
+          return request(app).get("/api/articles/1/comments");
+        })
+        .then((response) => {
+          const { body } = response;
+          expect(body).toHaveLength(12);
+          body.forEach((comment) => {
+            expect(comment).toEqual(
+              expect.objectContaining({
+                comment_id: expect.any(Number),
+                votes: expect.any(Number),
+                created_at: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+              })
+            );
+          });
+        });
+    });
+    test("201 - Comment Posted: Posts new comment to the table for article (2) with no comments", () => {
+      return request(app)
+        .post("/api/articles/2/comments")
+        .send({ username: "lurker", body: "Second test comment." })
+        .expect(201)
+        .then((response) => {
+          const { body } = response;
+          expect(body.author).toBe("lurker");
+          expect(body.body).toBe("Second test comment.");
+          expect(body.votes).toBe(0);
+          return request(app).get("/api/articles/2/comments");
+        })
+        .then((response) => {
+          const { body } = response;
+          expect(body).toHaveLength(1);
+        });
+    });
+    test("400 - Bad request: should return error for invalid comment object keys", () => {
+      return request(app)
+        .post("/api/articles/5/comments")
+        .send({ user: "icellusedkars", body: "This is a test comment." })
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe(
+            "Bad request - please use format '{username: <string>, body: <string>}'"
+          );
+        });
+    });
+    test("400 - Bad request: should return error for invalid comment object values", () => {
+      return request(app)
+        .post("/api/articles/5/comments")
+        .send({ user: "icellusedkars", body: 1000 })
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe(
+            "Bad request - please use format '{username: <string>, body: <string>}'"
+          );
+        });
+    });
+    test("404 - Not Found: should return error for unmatched article id", () => {
+      return request(app)
+        .post("/api/articles/1000/comments")
+        .send({ username: "icellusedkars", body: "This is a test comment." })
+        .expect(404)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("Article not found.");
+        });
+    });
+    test("400 - Bad Request: should return error for incorrect article id", () => {
+      return request(app)
+        .post("/api/articles/notAnArticle/comments")
+        .send({ username: "icellusedkars", body: "This is a test comment." })
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("Bad request - Invalid article ID");
+        });
+    });
+  });
+  describe("POST /api/articles - adds a article with author (username) title, body, topic, returning article object", () => {
+    test("201 - Article Posted: Posts new comment to the table for article (1) already with comments (11)", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({ username: "icellusedkars", title: "This is a test article.", body: "Test words for a fake article blah blah blah.", topic: "cats" })
+        .expect(201)
+        .then((response) => {
+          const { body } = response;
+          expect(body.author).toBe("icellusedkars");
+          expect(body.title).toBe("This is a test article.");
+          expect(body.body).toBe("Test words for a fake article blah blah blah.");
+          expect(body.topic).toBe("cats");
+          expect(body.votes).toBe(0);
+          return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toHaveLength(13);
+        })
+    });});
+    test("400 - Bad request: should return error for invalid article object keys test 1", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({ name: "icellusedkars", title: "This is a test article.", body: "Test words for a fake article blah blah blah.", topic: "cats" })
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe(
+            "Bad request - please use format {username: <string>, title: <string>, body: <string>, topic:<string>}"
+          );
+        });
+    });
+    test("400 - Bad request: should return error for invalid article object keys test 2", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({ username: "icellusedkars", title: "This is a test article.", body: "Test words for a fake article blah blah blah.", topic: "cats", extra: 'Not allowed'})
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe(
+            "Bad request - please use format {username: <string>, title: <string>, body: <string>, topic:<string>}"
+          );
+        });
+    });
+    test("400 - Bad request: should return error for invalid article object keys test 3", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({ username: "icellusedkars", title: "This is a test article.", body: "Test words for a fake article blah blah blah."})
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe(
+            "Bad request - please use format {username: <string>, title: <string>, body: <string>, topic:<string>}"
+          );
+        });
+    });
+    test("400 - Bad request: should return error for invalid topic", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({ username: "icellusedkars", title: "This is a test article.", body: "Test words for a fake article blah blah blah.", topic: 'notATopic' })
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe(
+            "notATopic is not a valid topic - available topics: mitch,cats,paper"
+          );
+        });
+    });
+    test("400 - Bad request: should return error for invalid title", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({ username: "icellusedkars", title: true, body: "Test words for a fake article blah blah blah.", topic: "cats" })
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe(
+            "Bad request - please use format {username: <string>, title: <string>, body: <string>, topic:<string>}"
+          );
+        });
+    });
+    test("404 - Not Found: should return error for unmatched username id", () => {
+      return request(app)
+        .post("/api/articles")
+        .send({ username: "busterboy", title: "This is a test article.", body: "Test words for a fake article blah blah blah.", topic: "cats" })
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("busterboy is not a valid user - available users: butter_bridge,icellusedkars,rogersop,lurker");
         });
     });
   });

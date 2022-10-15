@@ -82,3 +82,41 @@ exports.removeCommentById = async (comment_id) => {
       });
   }
 };
+
+exports.updateCommentVote = async (comment_id, body) => {
+  if (!(comment_id > 0) || !Number.isInteger(Number(comment_id))) {
+    return Promise.reject({
+      error: true,
+      status: 400,
+      msg: "Bad request - Invalid comment ID",
+    })
+  }
+  if (
+    Object.keys(body).includes("inc_votes") &&
+    Number.isInteger(body.inc_votes)
+  ) {
+    return db
+          .query(
+            "UPDATE comments SET votes = votes + $1 WHERE comment_id = $2 RETURNING *;",
+            [body.inc_votes, comment_id]
+          )
+          .then((response) => {
+            if (response.rows.length === 0) {
+              return Promise.reject({
+                error: true,
+                status: 404,
+                msg: "Comment not found.",
+              });
+            }
+            return response.rows[0];
+          });
+        }
+   else {
+    return Promise.reject({
+      error: true,
+      status: 400,
+      msg: "Bad request - please use format '{inc_vote : <integer>}'",
+    });
+  }
+}
+

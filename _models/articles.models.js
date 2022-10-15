@@ -1,6 +1,7 @@
 const { ident } = require("pg-format");
 const db = require("../db/connection");
 const { selectTopics } = require("./topics.models");
+const {selectUsers} = require('./users.models');
 
 exports.selectArticleById = (articleId) => {
   if (!(articleId > 0) || !Number.isInteger(Number(articleId))) {
@@ -43,13 +44,8 @@ exports.updateVoteById = (article_id, body) => {
     return this.selectArticleById(article_id).then((article) => {
       if (article.error) {
         return article;
-      } else if (article.votes + body.inc_votes < 0) {
-        return Promise.reject({
-          error: true,
-          status: 400,
-          msg: `Not possible to reduce votes below 0 - current vote is ${article.votes}`,
-        });
-      } else {
+      } 
+      else {
         return db
           .query(
             "UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *",
@@ -104,7 +100,6 @@ exports.selectArticlesByTopic = async (req) => {
       msg: `Bad request - invalid order catergory.`,
     });
   }
-
   const topics = await selectTopics();
   const okTopics = topics.map((topic) => {
     return topic.slug;
@@ -150,3 +145,57 @@ exports.selectArticlesByTopic = async (req) => {
     }
   });
 };
+
+exports.addArticle = async (req) => {
+  if (
+    Object.keys(req).includes("body") &&
+    Object.keys(req).includes("title") &&
+    Object.keys(req).includes("topic") &&
+    Object.keys(req).includes("username") &&
+    typeof req.body === 'string' &&
+    typeof req.title === 'string' &&
+    typeof req.topic === 'string' &&
+    typeof req.username === 'string' &&
+    Object.keys(req).length === 4
+  ) {
+    const topics = await selectTopics();
+    const okTopics = topics.map((topic) => {
+      return topic.slug;
+    });
+    if (!okTopics.includes(req.topic)) {
+    
+      return Promise.reject({
+        error: true,
+        status: 400,
+        msg: `${req.topic} is not a valid topic - available topics: ${okTopics}`,
+      });
+    }
+
+    const users = await selectUsers();
+    const okUsers = users.map((user)=>{return user.username})
+
+    if (!okUsers.includes(req.username)) {
+      return Promise.reject({
+        error: true,
+        status: 400,
+        msg: `${req.username} is not a valid user - available users: ${okUsers}`,
+      });
+    }
+
+    return db
+          .query(
+            "INSERT INTO articles (author, title, body, topic) VALUES ($1, $2, $3, $4) RETURNING *;",
+            [req.username, req.title, req.body, req.topic]
+          )
+          .then((response) => {
+            return response.rows[0];
+          });
+      }
+   else {
+    return Promise.reject({
+      error: true,
+      status: 400,
+      msg: "Bad request - please use format {username: <string>, title: <string>, body: <string>, topic:<string>}",
+    });
+  }
+}
