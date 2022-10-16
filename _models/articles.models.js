@@ -65,9 +65,11 @@ exports.updateVoteById = (article_id, body) => {
   }
 };
 
-exports.selectArticlesByTopic = async (req) => {
-  const okQueries = ["sort_by", "order", "topic"];
+exports.selectArticles = async (req) => {
+
+  const okQueries = ["sort_by", "order", "topic", 'limit', 'p'];
   const queries = Object.keys(req);
+
   for (let key of queries) {
     if (!okQueries.includes(key)) {
       return Promise.reject({
@@ -77,6 +79,19 @@ exports.selectArticlesByTopic = async (req) => {
       });
     }
   }
+
+  const limit = false
+
+  if (Object.keys(queries).includes('limit')){
+    if (!(query.limit > 0) || !Number.isInteger(Number(query.limit))){
+      return Promise.reject({
+        error: true,
+        status: 400,
+        msg: "Bad request - Invalid limit value.",
+      })}
+      else {limit = true}
+    }
+
   const okSorts = [
     "article_id",
     "title",
@@ -100,10 +115,13 @@ exports.selectArticlesByTopic = async (req) => {
       msg: `Bad request - invalid order catergory.`,
     });
   }
+
   const topics = await selectTopics();
+
   const okTopics = topics.map((topic) => {
     return topic.slug;
   });
+
   if (req.topic && !okTopics.includes(req.topic)) {
     return Promise.reject({
       error: true,
@@ -197,5 +215,33 @@ exports.addArticle = async (req) => {
       status: 400,
       msg: "Bad request - please use format {username: <string>, title: <string>, body: <string>, topic:<string>}",
     });
+  }
+}
+
+exports.removeArticle = async (article_id)  => {
+  if (!(article_id > 0) || !Number.isInteger(Number(article_id))) {
+    return Promise.reject({
+      error: true,
+      status: 400,
+      msg: "Bad request - Invalid article ID",
+    });
+  } else {
+    return db
+      .query(`DELETE FROM comments WHERE article_id = $1 RETURNING *;`, [
+        article_id,
+      ])
+      .then((response) => {
+        return db.query('DELETE FROM articles WHERE article_id = $1 RETURNING *;',[article_id]).then((response)=>{
+          if (response.rows.length === 0) {
+            return Promise.reject({
+              error: true,
+              status: 404,
+              msg: `Article not found.`,
+            });
+          } else {
+            return response.rows;
+          }
+        })
+      });
   }
 }

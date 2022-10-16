@@ -1,8 +1,9 @@
 const {
   selectArticleById,
   updateVoteById,
-  selectArticlesByTopic,
-  addArticle
+  selectArticles,
+  addArticle,
+  removeArticle
 } = require("../_models/articles.models");
 
 exports.getArticleById = (req, res, next) => {
@@ -36,15 +37,17 @@ exports.patchVoteById = (req, res, next) => {
     });
 };
 
-exports.getArticlesByTopic = (req, res, next) => {
+exports.getArticles = (req, res, next) => {
   const { query } = req;
-  selectArticlesByTopic(query)
+
+  selectArticles(query)
     .then((articles) => {
       if (articles.error) {
         next(articles);
       } else {
         //console.log(articles);
         res.status(200).send(articles);
+
       }
     })
     .catch((err) => {
@@ -67,3 +70,20 @@ exports.postArticle = (req, res, next) => {
     next(err);
   });
 }
+
+exports.deleteArticle = (req, res, next) => {
+  const article_id = req.params.article_id;
+
+  removeArticle(article_id).then((response) => {
+    if (response.error) {
+      next(response);
+    } else {
+      res.status(204).send({})
+    }
+  })
+  .catch((err) => {
+    next(err);
+  });
+}
+
+
