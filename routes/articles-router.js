@@ -1,8 +1,9 @@
 const {
     getArticleById,
     patchVoteById,
-    getArticlesByTopic,
-    postArticle
+    getArticles,
+    postArticle,
+    deleteArticle
   } = require("../_controllers/articles.controllers");
 
   const {
@@ -13,13 +14,14 @@ const {
 
 const articlesRouter = require('express').Router();
 
-articlesRouter.get("/", getArticlesByTopic);
+articlesRouter.get("/", getArticles);
 articlesRouter.get("/:article_id", getArticleById);
 articlesRouter.patch("/:article_id", patchVoteById);
 
 articlesRouter.get("/:article_id/comments", getCommentsByArticleId);
 articlesRouter.post("/", postArticle);
 articlesRouter.post("/:article_id/comments", postCommentToArticle);
+articlesRouter.delete('/:article_id', deleteArticle)
 
 
 module.exports = articlesRouter;

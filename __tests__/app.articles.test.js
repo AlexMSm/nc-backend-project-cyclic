@@ -14,6 +14,7 @@ afterAll(() => {
 });
 
 describe("/api/articles", () => {
+
   describe("GET /api/articles/:article_id - returns an article object with the following properties - author, title, article_id, body, topic, created_at, votes", () => {
     test("200: returns article object", () => {
       return request(app)
@@ -141,7 +142,7 @@ describe("/api/articles", () => {
         });
     });
   });
-  describe("GET /api/articles?topic=<topic> - returns array of article objects with optional topic filter", () => {
+  describe("GET /api/articles - returns array of article objects with optional topic filter", () => {
     test("200: returns array of all article objects DATE DSC", () => {
       return request(app)
         .get("/api/articles")
@@ -199,6 +200,49 @@ describe("/api/articles", () => {
         });
     });
   });
+/*   describe("GET /api/articles/?limit=limit&p=p - returns an article object with the following properties - author, title, article_id, body, topic, created_at, votes", () => {
+        test("200: returns array of article objects paginated with a default limit of 10", () => {
+          return request(app)
+            .get("/api/articles?limit")
+            .expect(200)
+            .then((response) => {
+              const { body } = response;
+              body.forEach((article) => {
+                expect(article).toEqual(
+                  expect.objectContaining({
+                    article_id: expect.any(Number),
+                    votes: expect.any(Number),
+                    title: expect.any(String),
+                    author: expect.any(String),
+                    body: expect.any(String),
+                    created_at: expect.any(String),
+                  })
+                );
+              });
+            });
+        })})
+        test("200: returns array of article objects paginated with a set limit of 5", () => {
+          return request(app)
+            .get("/api/articles?limit=5")
+            .expect(200)
+            .then((response) => {
+              const { body } = response;
+              body.forEach((article) => {
+                expect(article).toEqual(
+                  expect.objectContaining({
+                    article_id: expect.any(Number),
+                    votes: expect.any(Number),
+                    title: expect.any(String),
+                    author: expect.any(String),
+                    body: expect.any(String),
+                    created_at: expect.any(String),
+                  })
+                );
+              });
+          });
+        })
+      
+ */
   describe("GET /api/articles?topic=<topic>&sort_by=<column>&order=<order>", () => {
     test("200: returns array of all article objects sorted by vote, DESC by default", () => {
       return request(app)
@@ -503,6 +547,57 @@ describe("/api/articles", () => {
         .then((response) => {
           const { body } = response;
           expect(body.msg).toBe("busterboy is not a valid user - available users: butter_bridge,icellusedkars,rogersop,lurker");
+        });
+    });
+  });
+
+  describe("DELETE /api/articles/:article_id - deletes an article returns 204", () => {
+    test("204 - No content: Deletes article 1, leaving 10 comments", () => {
+      return request(app)
+        .delete("/api/articles/1")
+        .expect(204)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toEqual({});
+          return request(app).get("/api/articles");
+        })
+        .then((response) => {
+          const { body } = response;
+          expect(body).toHaveLength(11);
+          body.forEach((article) => {
+            expect(article.article_id).not.toBe(1);
+          });
+        });
+    });
+    test("204 - No content: Deletes comment from article 6, leaving 0 comments", () => {
+      return request(app)
+        .delete("/api/articles/2")
+        .expect(204)
+        .then((response) => {
+          const { body } = response;
+          return request(app).get("/api/articles/2");
+        })
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("Article not found.");
+        });
+    });
+    test("404 - Not Found: should return error for unmatched article id", () => {
+      return request(app)
+        .delete("/api/articles/1000")
+        .expect(404)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("Article not found.");
+        });
+    });
+    test("400 - Bad Request: should return error for invalid article id", () => {
+      return request(app)
+        .delete("/api/articles/notAnID")
+        .expect(400)
+        .then((response) => {
+          const { body } = response;
+          expect(body.msg).toBe("Bad request - Invalid article ID");
         });
     });
   });
