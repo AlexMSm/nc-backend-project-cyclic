@@ -1,7 +1,7 @@
 const { ident } = require("pg-format");
 const db = require("../db/connection");
 const { selectTopics } = require("./topics.models");
-const {selectUsers} = require('./users.models');
+const { selectUsers } = require("./users.models");
 
 exports.selectArticleById = (articleId) => {
   if (!(articleId > 0) || !Number.isInteger(Number(articleId))) {
@@ -38,14 +38,13 @@ exports.selectArticleById = (articleId) => {
 
 exports.updateVoteById = (article_id, body) => {
   if (
-    Object.keys(body).includes("inc_votes") &&
+    Object.keys(body).includes("inc_vote") &&
     Number.isInteger(body.inc_votes)
   ) {
     return this.selectArticleById(article_id).then((article) => {
       if (article.error) {
         return article;
-      } 
-      else {
+      } else {
         return db
           .query(
             "UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *",
@@ -66,8 +65,7 @@ exports.updateVoteById = (article_id, body) => {
 };
 
 exports.selectArticles = async (req) => {
-
-  const okQueries = ["sort_by", "order", "topic", 'limit', 'p'];
+  const okQueries = ["sort_by", "order", "topic", "limit", "p"];
   const queries = Object.keys(req);
 
   for (let key of queries) {
@@ -80,17 +78,19 @@ exports.selectArticles = async (req) => {
     }
   }
 
-  const limit = false
+  const limit = false;
 
-  if (Object.keys(queries).includes('limit')){
-    if (!(query.limit > 0) || !Number.isInteger(Number(query.limit))){
+  if (Object.keys(queries).includes("limit")) {
+    if (!(query.limit > 0) || !Number.isInteger(Number(query.limit))) {
       return Promise.reject({
         error: true,
         status: 400,
         msg: "Bad request - Invalid limit value.",
-      })}
-      else {limit = true}
+      });
+    } else {
+      limit = true;
     }
+  }
 
   const okSorts = [
     "article_id",
@@ -170,10 +170,10 @@ exports.addArticle = async (req) => {
     Object.keys(req).includes("title") &&
     Object.keys(req).includes("topic") &&
     Object.keys(req).includes("username") &&
-    typeof req.body === 'string' &&
-    typeof req.title === 'string' &&
-    typeof req.topic === 'string' &&
-    typeof req.username === 'string' &&
+    typeof req.body === "string" &&
+    typeof req.title === "string" &&
+    typeof req.topic === "string" &&
+    typeof req.username === "string" &&
     Object.keys(req).length === 4
   ) {
     const topics = await selectTopics();
@@ -181,7 +181,6 @@ exports.addArticle = async (req) => {
       return topic.slug;
     });
     if (!okTopics.includes(req.topic)) {
-    
       return Promise.reject({
         error: true,
         status: 400,
@@ -190,7 +189,9 @@ exports.addArticle = async (req) => {
     }
 
     const users = await selectUsers();
-    const okUsers = users.map((user)=>{return user.username})
+    const okUsers = users.map((user) => {
+      return user.username;
+    });
 
     if (!okUsers.includes(req.username)) {
       return Promise.reject({
@@ -201,24 +202,23 @@ exports.addArticle = async (req) => {
     }
 
     return db
-          .query(
-            "INSERT INTO articles (author, title, body, topic) VALUES ($1, $2, $3, $4) RETURNING *;",
-            [req.username, req.title, req.body, req.topic]
-          )
-          .then((response) => {
-            return response.rows[0];
-          });
-      }
-   else {
+      .query(
+        "INSERT INTO articles (author, title, body, topic) VALUES ($1, $2, $3, $4) RETURNING *;",
+        [req.username, req.title, req.body, req.topic]
+      )
+      .then((response) => {
+        return response.rows[0];
+      });
+  } else {
     return Promise.reject({
       error: true,
       status: 400,
       msg: "Bad request - please use format {username: <string>, title: <string>, body: <string>, topic:<string>}",
     });
   }
-}
+};
 
-exports.removeArticle = async (article_id)  => {
+exports.removeArticle = async (article_id) => {
   if (!(article_id > 0) || !Number.isInteger(Number(article_id))) {
     return Promise.reject({
       error: true,
@@ -231,17 +231,21 @@ exports.removeArticle = async (article_id)  => {
         article_id,
       ])
       .then((response) => {
-        return db.query('DELETE FROM articles WHERE article_id = $1 RETURNING *;',[article_id]).then((response)=>{
-          if (response.rows.length === 0) {
-            return Promise.reject({
-              error: true,
-              status: 404,
-              msg: `Article not found.`,
-            });
-          } else {
-            return response.rows;
-          }
-        })
+        return db
+          .query("DELETE FROM articles WHERE article_id = $1 RETURNING *;", [
+            article_id,
+          ])
+          .then((response) => {
+            if (response.rows.length === 0) {
+              return Promise.reject({
+                error: true,
+                status: 404,
+                msg: `Article not found.`,
+              });
+            } else {
+              return response.rows;
+            }
+          });
       });
   }
-}
+};

@@ -3,7 +3,7 @@ const {
   updateVoteById,
   selectArticles,
   addArticle,
-  removeArticle
+  removeArticle,
 } = require("../_models/articles.models");
 
 exports.getArticleById = (req, res, next) => {
@@ -47,7 +47,6 @@ exports.getArticles = (req, res, next) => {
       } else {
         //console.log(articles);
         res.status(200).send(articles);
-
       }
     })
     .catch((err) => {
@@ -56,34 +55,33 @@ exports.getArticles = (req, res, next) => {
 };
 
 exports.postArticle = (req, res, next) => {
-  const {body} = req;
+  const { body } = req;
 
   addArticle(body)
-  .then((article) => {
-    if (article.error) {
-      next(articles);
-    } else {
-      res.status(201).send(article);
-    }
-  })
-  .catch((err) => {
-    next(err);
-  });
-}
+    .then((article) => {
+      if (article.error) {
+        next(articles);
+      } else {
+        res.status(201).send(article);
+      }
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
 
 exports.deleteArticle = (req, res, next) => {
   const article_id = req.params.article_id;
 
-  removeArticle(article_id).then((response) => {
-    if (response.error) {
-      next(response);
-    } else {
-      res.status(204).send({})
-    }
-  })
-  .catch((err) => {
-    next(err);
-  });
-}
-
-
+  removeArticle(article_id)
+    .then((response) => {
+      if (response.error) {
+        next(response);
+      } else {
+        res.status(204).send({});
+      }
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
