@@ -39,7 +39,7 @@ exports.selectArticleById = (articleId) => {
 exports.updateVoteById = (article_id, body) => {
   if (
     Object.keys(body).includes("inc_vote") &&
-    Number.isInteger(body.inc_votes)
+    Number.isInteger(body.inc_vote)
   ) {
     return this.selectArticleById(article_id).then((article) => {
       if (article.error) {
@@ -48,7 +48,7 @@ exports.updateVoteById = (article_id, body) => {
         return db
           .query(
             "UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *",
-            [body.inc_votes, article_id]
+            [body.inc_vote, article_id]
           )
           .then((response) => {
             return response.rows[0];
