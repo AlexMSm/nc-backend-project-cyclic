@@ -14,7 +14,6 @@ afterAll(() => {
 });
 
 describe("/api/articles", () => {
-
   describe("GET /api/articles/:article_id - returns an article object with the following properties - author, title, article_id, body, topic, created_at, votes", () => {
     test("200: returns article object", () => {
       return request(app)
@@ -31,7 +30,7 @@ describe("/api/articles", () => {
             "Bastet walks amongst us, and the cats are taking arms!"
           );
           const date = new Date(1596464040000);
-          expect(body.created_at).toBe("2020-08-03T06:14:00.000Z");
+          expect(body.created_at).toBe("2020-08-03T13:14:00.000Z");
           expect(body.votes).toBe(0);
         });
     });
@@ -58,17 +57,18 @@ describe("/api/articles", () => {
     test("200: Correctly updates vote property, returns the article", () => {
       return request(app)
         .patch("/api/articles/1")
-        .send({ inc_votes: 5 })
+        .send({ inc_vote: 5 })
         .then(201)
         .then((response) => {
           const { body } = response;
+          console.log(body);
           expect(body.votes).toBe(105);
         });
     });
     test("200: Correctly updates vote property, returns the article", () => {
       return request(app)
         .patch("/api/articles/1")
-        .send({ inc_votes: -50 })
+        .send({ inc_vote: -50 })
         .expect(200)
         .then((response) => {
           const { body } = response;
@@ -78,7 +78,7 @@ describe("/api/articles", () => {
     test("400 - Bad request: ", () => {
       return request(app)
         .patch("/api/articles/1")
-        .send({ vote_increase: 5 })
+        .send({ inc_votes: 5 })
         .expect(400)
         .then((response) => {
           const { body } = response;
@@ -90,7 +90,7 @@ describe("/api/articles", () => {
     test("400 - Bad request: ", () => {
       return request(app)
         .patch("/api/articles/1")
-        .send({ inc_votes: "five" })
+        .send({ inc_vote: "five" })
         .expect(400)
         .then((response) => {
           const { body } = response;
@@ -102,7 +102,7 @@ describe("/api/articles", () => {
     test("404 - Not Found: should return error for unmatched article id", () => {
       return request(app)
         .patch("/api/articles/10000")
-        .send({ inc_votes: 5 })
+        .send({ inc_vote: 5 })
         .expect(404)
         .then((response) => {
           const { body } = response;
@@ -112,7 +112,7 @@ describe("/api/articles", () => {
     test("400 - Bad Request: should return error for incorrect article id", () => {
       return request(app)
         .patch("/api/articles/articletest")
-        .send({ inc_votes: 5 })
+        .send({ inc_vote: 5 })
         .expect(400)
         .then((response) => {
           const { body } = response;
@@ -200,7 +200,7 @@ describe("/api/articles", () => {
         });
     });
   });
-/*   describe("GET /api/articles/?limit=limit&p=p - returns an article object with the following properties - author, title, article_id, body, topic, created_at, votes", () => {
+  /*   describe("GET /api/articles/?limit=limit&p=p - returns an article object with the following properties - author, title, article_id, body, topic, created_at, votes", () => {
         test("200: returns array of article objects paginated with a default limit of 10", () => {
           return request(app)
             .get("/api/articles?limit")
@@ -462,27 +462,40 @@ describe("/api/articles", () => {
     test("201 - Article Posted: Posts new comment to the table for article (1) already with comments (11)", () => {
       return request(app)
         .post("/api/articles")
-        .send({ username: "icellusedkars", title: "This is a test article.", body: "Test words for a fake article blah blah blah.", topic: "cats" })
+        .send({
+          username: "icellusedkars",
+          title: "This is a test article.",
+          body: "Test words for a fake article blah blah blah.",
+          topic: "cats",
+        })
         .expect(201)
         .then((response) => {
           const { body } = response;
           expect(body.author).toBe("icellusedkars");
           expect(body.title).toBe("This is a test article.");
-          expect(body.body).toBe("Test words for a fake article blah blah blah.");
+          expect(body.body).toBe(
+            "Test words for a fake article blah blah blah."
+          );
           expect(body.topic).toBe("cats");
           expect(body.votes).toBe(0);
           return request(app)
-        .get("/api/articles")
-        .expect(200)
-        .then((response) => {
-          const { body } = response;
-          expect(body).toHaveLength(13);
-        })
-    });});
+            .get("/api/articles")
+            .expect(200)
+            .then((response) => {
+              const { body } = response;
+              expect(body).toHaveLength(13);
+            });
+        });
+    });
     test("400 - Bad request: should return error for invalid article object keys test 1", () => {
       return request(app)
         .post("/api/articles")
-        .send({ name: "icellusedkars", title: "This is a test article.", body: "Test words for a fake article blah blah blah.", topic: "cats" })
+        .send({
+          name: "icellusedkars",
+          title: "This is a test article.",
+          body: "Test words for a fake article blah blah blah.",
+          topic: "cats",
+        })
         .expect(400)
         .then((response) => {
           const { body } = response;
@@ -494,7 +507,13 @@ describe("/api/articles", () => {
     test("400 - Bad request: should return error for invalid article object keys test 2", () => {
       return request(app)
         .post("/api/articles")
-        .send({ username: "icellusedkars", title: "This is a test article.", body: "Test words for a fake article blah blah blah.", topic: "cats", extra: 'Not allowed'})
+        .send({
+          username: "icellusedkars",
+          title: "This is a test article.",
+          body: "Test words for a fake article blah blah blah.",
+          topic: "cats",
+          extra: "Not allowed",
+        })
         .expect(400)
         .then((response) => {
           const { body } = response;
@@ -506,7 +525,11 @@ describe("/api/articles", () => {
     test("400 - Bad request: should return error for invalid article object keys test 3", () => {
       return request(app)
         .post("/api/articles")
-        .send({ username: "icellusedkars", title: "This is a test article.", body: "Test words for a fake article blah blah blah."})
+        .send({
+          username: "icellusedkars",
+          title: "This is a test article.",
+          body: "Test words for a fake article blah blah blah.",
+        })
         .expect(400)
         .then((response) => {
           const { body } = response;
@@ -518,7 +541,12 @@ describe("/api/articles", () => {
     test("400 - Bad request: should return error for invalid topic", () => {
       return request(app)
         .post("/api/articles")
-        .send({ username: "icellusedkars", title: "This is a test article.", body: "Test words for a fake article blah blah blah.", topic: 'notATopic' })
+        .send({
+          username: "icellusedkars",
+          title: "This is a test article.",
+          body: "Test words for a fake article blah blah blah.",
+          topic: "notATopic",
+        })
         .expect(400)
         .then((response) => {
           const { body } = response;
@@ -530,7 +558,12 @@ describe("/api/articles", () => {
     test("400 - Bad request: should return error for invalid title", () => {
       return request(app)
         .post("/api/articles")
-        .send({ username: "icellusedkars", title: true, body: "Test words for a fake article blah blah blah.", topic: "cats" })
+        .send({
+          username: "icellusedkars",
+          title: true,
+          body: "Test words for a fake article blah blah blah.",
+          topic: "cats",
+        })
         .expect(400)
         .then((response) => {
           const { body } = response;
@@ -542,11 +575,18 @@ describe("/api/articles", () => {
     test("404 - Not Found: should return error for unmatched username id", () => {
       return request(app)
         .post("/api/articles")
-        .send({ username: "busterboy", title: "This is a test article.", body: "Test words for a fake article blah blah blah.", topic: "cats" })
+        .send({
+          username: "busterboy",
+          title: "This is a test article.",
+          body: "Test words for a fake article blah blah blah.",
+          topic: "cats",
+        })
         .expect(400)
         .then((response) => {
           const { body } = response;
-          expect(body.msg).toBe("busterboy is not a valid user - available users: butter_bridge,icellusedkars,rogersop,lurker");
+          expect(body.msg).toBe(
+            "busterboy is not a valid user - available users: butter_bridge,icellusedkars,rogersop,lurker"
+          );
         });
     });
   });

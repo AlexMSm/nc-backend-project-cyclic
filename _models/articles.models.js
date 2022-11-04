@@ -99,6 +99,7 @@ exports.selectArticles = async (req) => {
     "author",
     "created_at",
     "votes",
+    "comments",
   ];
   if (req.sort_by && !okSorts.includes(req.sort_by)) {
     return Promise.reject({
