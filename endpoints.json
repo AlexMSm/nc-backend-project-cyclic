@@ -9,6 +9,14 @@
       "topics": [{ "slug": "football", "description": "Footie!" }]
     }
   },
+  "POST /api/topics": {
+    "description": "posts a new available topic to the API. Requires object of the form {topic : <string>}",
+    "queries": [],
+    "exampleResponse": {
+      "topics": [{ "slug": "football", "description": "Footie!" }]
+    }
+  },
+
   "GET /api/articles": {
     "description": "serves an array of all topics",
     "queries": ["author", "topic", "sort_by", "order"],
@@ -35,16 +43,6 @@
       "votes": 100
     }
   },
-  "GET /api/users": {
-    "description": "serves an array of all users",
-    "exampleResponse": [
-      {
-        "username": "butter_bridge",
-        "name": "jonny",
-        "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
-      }
-    ]
-  },
   "GET /api/articles/:article_id/comments": {
     "description": "serves an array of all comments on a given article_id",
     "exampleResponse": [
@@ -68,6 +66,28 @@
       "votes": 50
     }
   },
+  "POST /api/articles/:article_id": {
+    "description": "Posts new article to the API. Requires object of the form {body : <string>, title: <string>, topic: <string>, username: <string>}. Returns the article as the response.",
+    "exampleResponse": {
+      "title": "Your first posted article",
+      "topic": "mitch",
+      "author": "butter_bridge",
+      "body": "I was very excited to write this article.",
+      "created_at": 1594329060000,
+      "votes": 0
+    }
+  },
+  "DELETE /api/articles/:article_id": {
+    "description": "Deletes article from the API. Returns the deleted article as the response.",
+    "exampleResponse": {
+      "title": "Article to delete",
+      "topic": "mitch",
+      "author": "butter_bridge",
+      "body": "I was very excited to delete this article.",
+      "created_at": 1594329060000,
+      "votes": 10
+    }
+  },
   "POST /api/articles/:article_id/comments": {
     "description": "posts a new comment object to a given article. Requires object of the form {username: <string>, body: <string>}",
     "exampleResponse": {
@@ -79,8 +99,35 @@
       "votes": 50
     }
   },
+
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "exampleResponse": [
+      {
+        "username": "butter_bridge",
+        "name": "jonny",
+        "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+      }
+    ]
+  },
+  "GET /api/users/:username": {
+    "description": "returns the user object for a given username",
+    "exampleResponse": {
+      "body": {
+        "username": "butter_bridge",
+        "name": "jonny",
+        "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+      }
+    }
+  },
+
   "DELETE /api/comments/:comment_id": {
     "description": "deletes a comment object, returns nothing.",
+    "exampleResponse": {}
+  },
+
+  "PATCH /api/comments/:comment_id": {
+    "description": "updates the contents of an article comment, returns nothing.",
     "exampleResponse": {}
   }
 }
