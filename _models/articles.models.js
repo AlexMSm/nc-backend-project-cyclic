@@ -139,7 +139,11 @@ exports.selectArticles = async (req) => {
   }
   query += " GROUP BY articles.article_id";
   if (req.sort_by) {
-    query += ` ORDER BY articles.${req.sort_by}`;
+    if (req.sort_by === "comment_count") {
+      query += ` ORDER BY ${req.sort_by}`;
+    } else {
+      query += ` ORDER BY articles.${req.sort_by}`;
+    }
   } else {
     query += " ORDER BY created_at";
   }
