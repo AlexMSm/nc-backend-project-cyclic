@@ -1,6 +1,6 @@
 const { selectTopics, addTopic } = require("../_models/topics.models");
 
-exports.getTopics = (req, res) => {
+exports.getTopics = (req, res, next) => {
   selectTopics()
     .then((topics) => {
       res.status(200).send(topics);
@@ -11,14 +11,16 @@ exports.getTopics = (req, res) => {
 };
 
 exports.postTopic = (req, res, next) => {
-  const {body} = req;
-  addTopic(body).then((topic) => {
-    if (topic.error) {
-      next(topic);
-    } else {
-    res.status(201).send(topic);
-  }})
-  .catch((err) => {
-    next(err);
-  });
-}
+  const { body } = req;
+  addTopic(body)
+    .then((topic) => {
+      if (topic.error) {
+        next(topic);
+      } else {
+        res.status(201).send(topic);
+      }
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
