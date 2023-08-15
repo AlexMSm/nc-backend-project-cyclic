@@ -67,7 +67,7 @@
       "votes": 50
     }
   },
-  "POST /api/articles/:article_id": {
+  "POST /api/articles": {
     "description": "Posts new article to the API. Requires object of the form {body : <string>, title: <string>, topic: <string>, username: <string>}. Returns the article as the response.",
     "exampleResponse": {
       "title": "Your first posted article",
